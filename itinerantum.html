@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Itinerantum — Travel Stories from Around the World</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1410;
+    --warm: #f5f0e8;
+    --sand: #e8ddc8;
+    --rust: #b85c2a;
+    --gold: #c9964a;
+    --muted: #7a6f62;
+    --light-muted: #b0a898;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--warm);
+    color: var(--ink);
+    font-size: 16px;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.1rem 3rem;
+    background: rgba(245,240,232,0.95);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid transparent;
+    transition: all 0.3s;
+  }
+  nav.scrolled { padding: 0.7rem 3rem; border-bottom-color: var(--sand); box-shadow: 0 2px 20px rgba(26,20,16,0.06); }
+  .nav-logo { display: flex; align-items: center; gap: 0.75rem; text-decoration: none; cursor: pointer; }
+  .logo-mark { width: 36px; height: 36px; flex-shrink: 0; }
+  .logo-wordmark { display: flex; flex-direction: column; line-height: 1; }
+  .logo-word { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink); }
+  .logo-tagline { font-size: 0.55rem; font-weight: 400; letter-spacing: 0.22em; text-transform: uppercase; color: var(--muted); margin-top: 0.12rem; }
+  .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+  .nav-links a { font-size: 0.74rem; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--rust); }
+  .nav-filter { display: flex; gap: 0.4rem; }
+  .filter-btn { font-family: 'DM Sans', sans-serif; font-size: 0.68rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.3rem 0.8rem; border: 1px solid var(--light-muted); background: transparent; color: var(--muted); cursor: pointer; border-radius: 2px; transition: all 0.2s; }
+  .filter-btn.active, .filter-btn:hover { background: var(--ink); color: var(--warm); border-color: var(--ink); }
+
+  /* HERO */
+  .hero { min-height: 100vh; display: flex; flex-direction: column; justify-content: flex-end; padding: 0 3rem 6rem; position: relative; background: var(--ink); overflow: hidden; }
+  .hero-bg { position: absolute; inset: 0; background: radial-gradient(ellipse at 70% 40%, rgba(201,150,74,0.14) 0%, transparent 55%), radial-gradient(ellipse at 20% 80%, rgba(184,92,42,0.11) 0%, transparent 50%); }
+  .hero-grid { position: absolute; inset: 0; background-image: repeating-linear-gradient(0deg, transparent, transparent 79px, rgba(255,255,255,0.025) 80px), repeating-linear-gradient(90deg, transparent, transparent 79px, rgba(255,255,255,0.025) 80px); }
+  .hero-compass { position: absolute; right: -60px; top: 50%; transform: translateY(-55%); width: 580px; height: 580px; opacity: 0.045; pointer-events: none; }
+  .hero-eyebrow { font-size: 0.68rem; font-weight: 500; letter-spacing: 0.25em; text-transform: uppercase; color: var(--gold); margin-bottom: 1.5rem; animation: fadeUp 0.8s 0.2s both; }
+  .hero-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(4rem, 10vw, 9rem); font-weight: 300; line-height: 0.92; color: var(--warm); letter-spacing: -0.02em; max-width: 900px; animation: fadeUp 0.8s 0.4s both; }
+  .hero-title em { font-style: italic; color: var(--gold); }
+  .hero-sub { margin-top: 2.5rem; font-size: 0.92rem; font-weight: 300; color: var(--light-muted); letter-spacing: 0.03em; max-width: 460px; line-height: 1.75; animation: fadeUp 0.8s 0.6s both; }
+  .hero-stats { display: flex; gap: 3rem; margin-top: 3.5rem; padding-top: 2rem; border-top: 1px solid rgba(255,255,255,0.08); animation: fadeUp 0.8s 0.8s both; }
+  .hero-stat-num { font-family: 'Cormorant Garamond', serif; font-size: 2.2rem; font-weight: 300; color: var(--warm); line-height: 1; }
+  .hero-stat-label { font-size: 0.64rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--light-muted); margin-top: 0.3rem; }
+  .scroll-hint { position: absolute; right: 3rem; bottom: 3rem; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; color: var(--light-muted); font-size: 0.63rem; letter-spacing: 0.18em; text-transform: uppercase; animation: fadeUp 0.8s 1s both; }
+  .scroll-line { width: 1px; height: 60px; background: linear-gradient(to bottom, var(--gold), transparent); animation: scrollPulse 2s ease-in-out infinite; }
+
+  /* SECTION HEADER */
+  .section-header { display: flex; align-items: baseline; justify-content: space-between; padding: 5rem 3rem 2.5rem; border-bottom: 1px solid var(--sand); }
+  .section-title { font-family: 'Cormorant Garamond', serif; font-size: 2.5rem; font-weight: 300; letter-spacing: -0.01em; }
+  .section-count { font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+
+  /* GRID */
+  #posts-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 1px; background: var(--sand); }
+  .post-card { background: var(--warm); cursor: pointer; transition: background 0.25s; overflow: hidden; display: flex; flex-direction: column; }
+  .post-card:hover { background: #ece7dc; }
+  .post-card:hover .card-arrow { transform: translate(4px, -4px); }
+  .post-card:hover .card-img img { transform: scale(1.04); }
+  .post-card.large  { grid-column: span 8; }
+  .post-card.medium { grid-column: span 6; }
+  .post-card.small  { grid-column: span 4; }
+
+  /* Card image */
+  .card-img { width: 100%; overflow: hidden; background: var(--sand); position: relative; }
+  .post-card.large  .card-img { height: 300px; }
+  .post-card.medium .card-img { height: 230px; }
+  .post-card.small  .card-img { height: 170px; }
+  .card-img img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.5s ease; }
+  .card-img-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--sand) 0%, #d8cfb8 100%); }
+  .card-img-placeholder svg { opacity: 0.2; width: 36px; height: 36px; }
+
+  .card-body { padding: 1.8rem 2rem 1.8rem; flex: 1; display: flex; flex-direction: column; }
+  .card-meta { display: flex; align-items: center; gap: 0.55rem; margin-bottom: 0.85rem; }
+  .card-region { font-size: 0.6rem; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; color: var(--rust); }
+  .meta-dot { width: 3px; height: 3px; border-radius: 50%; background: var(--light-muted); flex-shrink: 0; }
+  .card-destination { font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--light-muted); }
+  .card-title { font-family: 'Cormorant Garamond', serif; font-weight: 400; line-height: 1.2; letter-spacing: -0.01em; margin-bottom: 0.8rem; flex: 1; }
+  .post-card.large  .card-title { font-size: 1.95rem; }
+  .post-card.medium .card-title { font-size: 1.55rem; }
+  .post-card.small  .card-title { font-size: 1.25rem; }
+  .card-excerpt { font-size: 0.85rem; color: var(--muted); line-height: 1.65; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+  .post-card.small .card-excerpt { -webkit-line-clamp: 2; }
+  .card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 1.4rem; padding-top: 1rem; border-top: 1px solid var(--sand); }
+  .card-date { font-size: 0.68rem; letter-spacing: 0.08em; color: var(--light-muted); }
+  .card-arrow { font-size: 1.05rem; color: var(--rust); transition: transform 0.2s; line-height: 1; }
+
+  /* DESTINATIONS */
+  .destinations-section { padding: 6rem 3rem; background: var(--ink); color: var(--warm); }
+  .destinations-eyebrow { font-size: 0.65rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold); margin-bottom: 1.2rem; }
+  .destinations-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(2.5rem, 6vw, 5rem); font-weight: 300; line-height: 0.95; letter-spacing: -0.02em; margin-bottom: 3rem; }
+  .dest-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border-top: 1px solid rgba(255,255,255,0.1); }
+  .dest-item { padding: 2rem 0; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: color 0.2s; }
+  .dest-item:nth-child(odd)  { padding-right: 3rem; border-right: 1px solid rgba(255,255,255,0.1); }
+  .dest-item:nth-child(even) { padding-left: 3rem; }
+  .dest-item:hover { color: var(--gold); }
+  .dest-name { font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; font-weight: 300; }
+  .dest-count { font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--light-muted); }
+
+  /* ABOUT */
+  .about-section { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border-top: 1px solid var(--sand); }
+  .about-left  { padding: 6rem 3rem; background: var(--sand); }
+  .about-right { padding: 6rem 3rem; }
+  .about-eyebrow { font-size: 0.64rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--rust); margin-bottom: 1.2rem; }
+  .about-title { font-family: 'Cormorant Garamond', serif; font-size: 3rem; font-weight: 300; line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 2rem; }
+  .about-text { font-size: 0.94rem; line-height: 1.82; color: var(--muted); }
+
+  /* PHOTOS NOTE */
+  .photos-note { background: var(--ink); color: var(--warm); padding: 2.5rem 3rem; border-top: 1px solid rgba(255,255,255,0.04); display: flex; gap: 2rem; align-items: flex-start; }
+  .photos-note-icon { font-size: 1.8rem; flex-shrink: 0; margin-top: 0.15rem; }
+  .photos-note-title { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 400; margin-bottom: 0.45rem; }
+  .photos-note-text { font-size: 0.83rem; line-height: 1.75; color: var(--light-muted); }
+  .photos-note code { font-size: 0.76rem; background: rgba(255,255,255,0.08); padding: 0.12rem 0.35rem; border-radius: 2px; }
+
+  /* FOOTER */
+  footer { background: #110e0b; padding: 3rem; display: flex; justify-content: space-between; align-items: center; }
+  .footer-logo-wrap { display: flex; align-items: center; gap: 0.65rem; }
+  .footer-logo-mark { width: 26px; height: 26px; }
+  .footer-logo-word { font-family: 'Cormorant Garamond', serif; font-size: 1.05rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--warm); }
+  .footer-tagline { font-size: 0.68rem; letter-spacing: 0.1em; color: var(--light-muted); margin-top: 0.2rem; }
+  .footer-right { font-size: 0.68rem; letter-spacing: 0.08em; color: var(--light-muted); text-align: right; }
+
+  /* MODAL */
+  .modal-overlay { position: fixed; inset: 0; z-index: 200; background: rgba(26,20,16,0.65); backdrop-filter: blur(4px); opacity: 0; pointer-events: none; display: none; transition: opacity 0.3s; }
+  .modal-overlay.open { opacity: 1; pointer-events: all; display: block; }
+  .modal { position: fixed; inset: 0; z-index: 201; overflow-y: auto; transform: translateY(30px); transition: transform 0.35s cubic-bezier(0.16,1,0.3,1); pointer-events: none; display: none; }
+  .modal.open { transform: translateY(0); pointer-events: all; display: block; }
+  .modal-inner { max-width: 800px; margin: 4rem auto; background: var(--warm); min-height: calc(100vh - 8rem); }
+  .modal-hero-img { width: 100%; height: 380px; object-fit: cover; display: block; }
+  .modal-header { background: var(--ink); padding: 3.5rem 4rem 3rem; position: relative; }
+  .modal-close { position: absolute; top: 1.5rem; right: 1.5rem; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.2); background: transparent; color: var(--light-muted); cursor: pointer; font-size: 1rem; transition: all 0.2s; border-radius: 2px; }
+  .modal-close:hover { background: var(--rust); color: white; border-color: var(--rust); }
+  .modal-region { font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); margin-bottom: 1.1rem; }
+  .modal-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(1.8rem, 4vw, 2.9rem); font-weight: 300; line-height: 1.1; color: var(--warm); letter-spacing: -0.02em; }
+  .modal-date { font-size: 0.71rem; letter-spacing: 0.1em; color: var(--light-muted); margin-top: 1.3rem; }
+  .modal-body { padding: 3.5rem 4rem; }
+  .modal-body p { font-size: 1rem; line-height: 1.9; color: #2d2620; margin-bottom: 1.35rem; }
+  .modal-body p strong { font-family: 'Cormorant Garamond', serif; font-size: 1.08rem; font-weight: 600; color: var(--ink); }
+  .modal-gallery { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin: 2.5rem 0; }
+  .modal-gallery img { width: 100%; height: 200px; object-fit: cover; display: block; }
+  .modal-gallery img:only-child { grid-column: span 2; height: 320px; }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes scrollPulse { 0%, 100% { opacity: 0.35; } 50% { opacity: 1; } }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    nav { padding: 1rem 1.5rem; }
+    nav.scrolled { padding: 0.6rem 1.5rem; }
+    .nav-links, .nav-filter { display: none; }
+    .hero { padding: 0 1.5rem 4rem; }
+    .hero-stats { gap: 1.5rem; }
+    .hero-compass { display: none; }
+    #posts-grid { grid-template-columns: 1fr; }
+    .post-card.large, .post-card.medium, .post-card.small { grid-column: span 1; }
+    .post-card.large .card-img, .post-card.medium .card-img { height: 210px; }
+    .section-header { padding: 3rem 1.5rem 1.5rem; }
+    .card-body { padding: 1.4rem; }
+    .about-section { grid-template-columns: 1fr; }
+    .about-left, .about-right { padding: 3rem 1.5rem; }
+    .destinations-section { padding: 4rem 1.5rem; }
+    .dest-grid { grid-template-columns: 1fr; }
+    .dest-item:nth-child(odd)  { padding-right: 0; border-right: none; }
+    .dest-item:nth-child(even) { padding-left: 0; }
+    .modal-inner { margin: 0; min-height: 100vh; }
+    .modal-header { padding: 3.5rem 1.5rem 2rem; }
+    .modal-body { padding: 2rem 1.5rem; }
+    .modal-hero-img { height: 230px; }
+    .photos-note { flex-direction: column; gap: 1rem; padding: 2rem 1.5rem; }
+    footer { flex-direction: column; gap: 1.5rem; text-align: center; }
+    .footer-right { text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="navbar">
+  <a class="nav-logo" href="#" onclick="event.preventDefault();showHome()">
+    <svg class="logo-mark" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="40" cy="40" r="36" stroke="#1a1410" stroke-width="2.2"/>
+      <circle cx="40" cy="40" r="27" stroke="#1a1410" stroke-width="0.7" stroke-dasharray="2.5 3.5"/>
+      <line x1="40" y1="5"  x2="40" y2="75" stroke="#1a1410" stroke-width="0.7" opacity="0.25"/>
+      <line x1="5"  y1="40" x2="75" y2="40" stroke="#1a1410" stroke-width="0.7" opacity="0.25"/>
+      <!-- N arrow filled -->
+      <polygon points="40,7 43.5,28 40,25 36.5,28" fill="#1a1410"/>
+      <!-- S arrow hollow -->
+      <polygon points="40,73 43.5,52 40,55 36.5,52" fill="none" stroke="#1a1410" stroke-width="1.8"/>
+      <!-- E in rust -->
+      <polygon points="73,40 55,43.5 58,40 55,36.5" fill="#b85c2a"/>
+      <!-- W faint -->
+      <polygon points="7,40 25,43.5 22,40 25,36.5" fill="#1a1410" opacity="0.4"/>
+      <!-- Center -->
+      <circle cx="40" cy="40" r="3.5" fill="#b85c2a"/>
+      <circle cx="40" cy="40" r="1.5" fill="#1a1410"/>
+      <!-- Tick marks -->
+      <line x1="40" y1="13" x2="40" y2="18" stroke="#1a1410" stroke-width="1.5" opacity="0.4"/>
+      <line x1="40" y1="62" x2="40" y2="67" stroke="#1a1410" stroke-width="1.5" opacity="0.4"/>
+      <line x1="13" y1="40" x2="18" y2="40" stroke="#1a1410" stroke-width="1.5" opacity="0.4"/>
+      <line x1="62" y1="40" x2="67" y2="40" stroke="#1a1410" stroke-width="1.5" opacity="0.4"/>
+    </svg>
+    <div class="logo-wordmark">
+      <span class="logo-word">Itinerantum</span>
+      <span class="logo-tagline">Travel &middot; Stories &middot; Discovery</span>
+    </div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#stories"      onclick="event.preventDefault();document.getElementById('stories').scrollIntoView({behavior:'smooth'})">Stories</a></li>
+    <li><a href="#destinations" onclick="event.preventDefault();document.getElementById('destinations').scrollIntoView({behavior:'smooth'})">Destinations</a></li>
+    <li><a href="#about"        onclick="event.preventDefault();document.getElementById('about').scrollIntoView({behavior:'smooth'})">About</a></li>
+  </ul>
+  <div class="nav-filter">
+    <button class="filter-btn active" onclick="filterPosts('all',this)">All</button>
+    <button class="filter-btn"        onclick="filterPosts('Asia',this)">Asia</button>
+    <button class="filter-btn"        onclick="filterPosts('Africa',this)">Africa</button>
+  </div>
+</nav>
+
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <svg class="hero-compass" viewBox="0 0 80 80" fill="none">
+    <circle cx="40" cy="40" r="36" stroke="white" stroke-width="1.2"/>
+    <circle cx="40" cy="40" r="27" stroke="white" stroke-width="0.5" stroke-dasharray="2.5 3.5"/>
+    <line x1="40" y1="5"  x2="40" y2="75" stroke="white" stroke-width="0.6"/>
+    <line x1="5"  y1="40" x2="75" y2="40" stroke="white" stroke-width="0.6"/>
+    <polygon points="40,7 43.5,28 40,25 36.5,28" fill="white"/>
+    <polygon points="40,73 43.5,52 40,55 36.5,52" fill="none" stroke="white" stroke-width="1.8"/>
+    <polygon points="73,40 55,43.5 58,40 55,36.5" fill="white" opacity="0.8"/>
+    <polygon points="7,40 25,43.5 22,40 25,36.5" fill="white" opacity="0.5"/>
+    <circle cx="40" cy="40" r="3.5" fill="white"/>
+    <circle cx="40" cy="40" r="1.5" fill="#1a1410" opacity="0.6"/>
+  </svg>
+  <p class="hero-eyebrow">Stories &middot; Tips &middot; Photography</p>
+  <h1 class="hero-title">The world<br>is <em>yours</em><br>to wander</h1>
+  <p class="hero-sub">Travel stories, practical tips and photography from around the world — curated for the curious traveller who prefers the road less taken.</p>
+  <div class="hero-stats">
+    <div><div class="hero-stat-num">12</div><div class="hero-stat-label">Stories</div></div>
+    <div><div class="hero-stat-num">2</div><div class="hero-stat-label">Continents</div></div>
+    <div><div class="hero-stat-num">8+</div><div class="hero-stat-label">Destinations</div></div>
+  </div>
+  <div class="scroll-hint"><div class="scroll-line"></div>Scroll</div>
+</section>
+
+
+<!-- STORIES -->
+<div class="section-header" id="stories">
+  <h2 class="section-title">Latest Stories</h2>
+  <span class="section-count" id="post-count">12 articles</span>
+</div>
+<div id="posts-grid"></div>
+
+
+<!-- DESTINATIONS -->
+<section class="destinations-section" id="destinations">
+  <p class="destinations-eyebrow">Browse by place</p>
+  <h2 class="destinations-title">Destinations<br>explored</h2>
+  <div class="dest-grid" id="dest-grid"></div>
+</section>
+
+
+<!-- ABOUT -->
+<section class="about-section" id="about">
+  <div class="about-left">
+    <p class="about-eyebrow">The travellers</p>
+    <h2 class="about-title">We go where<br>curiosity leads</h2>
+    <p class="about-text">Itinerantum is a travel blog built on a simple belief: the best way to understand the world is to move through it slowly, with open eyes and an open mind.<br><br>We document our journeys not just to share where we have been, but to show how travel transforms perspective — one country, one meal, one sunrise at a time.</p>
+  </div>
+  <div class="about-right">
+    <p class="about-eyebrow">Philosophy</p>
+    <h2 class="about-title">Independent,<br>always</h2>
+    <p class="about-text">We organise our own trips wherever possible — it gives us a freedom that no guided tour can replicate. Every story here is written from first-hand experience, with practical tips for travellers who want to do the same.<br><br>From bullet trains in China to 4×4 tracks in the Masai Mara, we believe every journey deserves to be done properly.</p>
+  </div>
+</section>
+
+
+<!-- PHOTOS NOTE -->
+<div class="photos-note">
+  <div class="photos-note-icon">📷</div>
+  <div>
+    <div class="photos-note-title">About the photography</div>
+    <div class="photos-note-text">All 446 original photos are stored in your WordPress backup under <code>public_html/wp-content/uploads/</code>, organised by year and month. Once your hosting is live, every card image and article gallery loads automatically from those paths. To move to a new host, simply copy the <code>uploads/</code> folder into your new <code>public_html/</code> directory — no database required. Images are referenced directly, so they will appear as soon as the files are accessible at <code>itinerantum.com</code>.</div>
+  </div>
+</div>
+
+
+<!-- FOOTER -->
+<footer>
+  <div>
+    <div class="footer-logo-wrap">
+      <svg class="footer-logo-mark" viewBox="0 0 80 80" fill="none">
+        <circle cx="40" cy="40" r="36" stroke="rgba(245,240,232,0.45)" stroke-width="2.2"/>
+        <circle cx="40" cy="40" r="27" stroke="rgba(245,240,232,0.2)" stroke-width="0.7" stroke-dasharray="2.5 3.5"/>
+        <line x1="40" y1="5" x2="40" y2="75" stroke="rgba(245,240,232,0.15)" stroke-width="0.7"/>
+        <line x1="5" y1="40" x2="75" y2="40" stroke="rgba(245,240,232,0.15)" stroke-width="0.7"/>
+        <polygon points="40,7 43.5,28 40,25 36.5,28" fill="rgba(245,240,232,0.65)"/>
+        <polygon points="40,73 43.5,52 40,55 36.5,52" fill="none" stroke="rgba(245,240,232,0.4)" stroke-width="1.8"/>
+        <polygon points="73,40 55,43.5 58,40 55,36.5" fill="#b85c2a"/>
+        <polygon points="7,40 25,43.5 22,40 25,36.5" fill="rgba(245,240,232,0.35)"/>
+        <circle cx="40" cy="40" r="3.5" fill="#b85c2a"/>
+        <circle cx="40" cy="40" r="1.5" fill="rgba(245,240,232,0.8)"/>
+      </svg>
+      <div>
+        <div class="footer-logo-word">Itinerantum</div>
+        <div class="footer-tagline">Travel stories from around the world</div>
+      </div>
+    </div>
+  </div>
+  <div class="footer-right">
+    <div>itinerantum.com</div>
+    <div style="margin-top:0.3rem">&copy; 2015&ndash;2026</div>
+  </div>
+</footer>
+
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal()"></div>
+<div class="modal" id="modal">
+  <div class="modal-inner">
+    <img id="modal-hero-img" class="modal-hero-img" src="" alt="" style="display:none" onerror="this.style.display='none'">
+    <div class="modal-header">
+      <button class="modal-close" onclick="closeModal()">&#x2715;</button>
+      <p class="modal-region" id="modal-region"></p>
+      <h1 class="modal-title"  id="modal-title"></h1>
+      <p class="modal-date"    id="modal-date"></p>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+
+<script>
+const B = 'http://itinerantum.com/wp-content/uploads/';
+
+const POSTS = [
+  {
+    title: 'Beijing — How to Visit the Great Wall Without the Crowds',
+    date: '2014-07-08', destination: 'China', region: 'Asia',
+    hero: B+'2014/07/beijing_web-1.jpg',
+    gallery: [B+'2014/07/beijing_web-65.jpg',B+'2014/07/beijing_web-37.jpg',B+'2014/07/beijing_web-42.jpg',B+'2014/07/beijing_web-22.jpg'],
+    excerpt: 'From Shanghai to Beijing by bullet train in five hours — then straight to a quieter stretch of the Great Wall where you will have it nearly to yourself.',
+    content: [
+      'Our next stop from Shanghai was Beijing. You can get there by G (bullet) train in around five hours, or by plane in half that time. However, a train journey requires only about half an hour to get in and out of the station — far less than an airport — there is no waiting for luggage, and transport to and from the station is considerably cheaper.',
+      'For anyone with limited time, the overnight sleeper train is ideal: you travel at night and preserve the day for sightseeing. The soft sleeper cabin (around $80) is clean and comfortable, so you arrive fresh and ready to explore.',
+      '<strong>Top 7 attractions in Beijing:</strong> The Forbidden City, Tian\'anmen Square, The Great Wall, The Temple of Heaven, The Summer Palace, The Hutongs, and Jingshan Park.',
+      'Of all these, the Temple of Heaven and the Summer Palace were our favourites. The Forbidden City is genuinely vast — building after building — and at some point it all starts to look familiar. But there is a reward at the end: Jingshan Park, from which you have the best view over the Forbidden City.',
+      'For the Summer Palace, allow at least half a day and try to go in season — the paths are lined with flowers and the lakes are covered in water lilies.',
+      'The Great Wall is a testament to what tireless human labour can achieve. We joined a tour organised by Leo Hostel, which took us to a quieter section called Mutianyu. We were almost alone, and the views were every bit as spectacular as we had always imagined.',
+      'If you opt for Badaling instead, take the bus and go independently. Beware of local touts, and simply walk a little further — beyond the steeper section where most tourists stop.',
+      'Not to be missed by food lovers is Ghost Street: a long boulevard lined with restaurants on both sides, some so popular that queues form well into the night.',
+    ]
+  },
+  {
+    title: 'Shanghai — Our First Encounter with Chinese Culture',
+    date: '2015-06-09', destination: 'China', region: 'Asia',
+    hero: B+'2015/06/Shanghai_cityscape_lights_bund-6.jpg',
+    gallery: [B+'2015/06/Shanghai_cityscape_lights_bund-9.jpg',B+'2015/06/Shanghai_cityscape_lights_bund-14.jpg',B+'2015/06/shanghai_chinese_street-6.jpg',B+'2015/06/china_Zujiajiao-3.jpg'],
+    excerpt: 'The world\'s fastest commercial train at 431 km/h is your welcome to Shanghai — the most modern city in China, and a place of fascinating contradictions.',
+    content: [
+      'The first sign that you are in Shanghai — the most modern city in China — reveals itself the moment you step out of Pudong International Airport. The only sensible way to reach the city is the high-speed magnetic levitation train, the Maglev. When I say high-speed, I mean 431 km/h, if only for a couple of minutes. The whole trip takes about eight minutes.',
+      'Shanghai is China\'s largest city (around 24 million people), its most modern, and a global financial centre — yet it is still quite different from what you might expect.',
+      'I was still struggling with my luggage getting out of the metro station when I noticed men in green military uniforms standing guard at the entrance. This was not an isolated case. Every metro station, tourist attraction, bridge and major intersection had a few of them. When pedestrian lights turned green, four soldiers would march to each corner of the intersection, forming a human square to ensure no one crossed diagonally. I found it fascinating — though this may have been amplified by the fact that my arrival coincided with Expo 2010.',
+      'But Shanghai is far more than that. It brilliantly combines the modern — The Bund, a formerly muddy riverbank now transformed into a stunning promenade facing the most futuristic skyline in Asia — with the traditional, as represented by the Yuyuan Gardens and bazaar, where pagodas and small shops crowd every corner.',
+      '<strong>Top things to do:</strong> The Bund and its iconic skyline; the Yuyuan Gardens; the French Concession; the Shanghai Museum; and the water town of Zhujiajiao, an easy day trip from the city.',
+    ]
+  },
+  {
+    title: 'Peking Duck — A Culinary Delight',
+    date: '2015-06-13', destination: 'China', region: 'Asia',
+    hero: B+'2015/06/beijing_web-68.jpg',
+    gallery: [B+'2014/07/beijing_web-29.jpg',B+'2015/06/beijing_web-70.jpg'],
+    excerpt: 'Crispy skin, rich meat, sweet bean sauce and a delicate pancake — Peking duck is one of China\'s great culinary rituals, and deserves to be done properly.',
+    content: [
+      'A must while in Beijing is the Peking duck. It is one of the eight most celebrated Chinese dishes, famous above all for its extraordinarily crispy skin. The meat is not abundant and it is quite rich, but it is absolutely worth trying. The cooking process is elaborate and involves multiple stages — though it is probably the final roasting in an upright position over fruitwood, followed by a dip in boiling water, a coating of syrup, and a 24-hour drying period that gives the duck its distinctive character.',
+      'All the guidebooks will point you to the famous establishments — Dadong, Quanjude, Made in China, or the more traditional Siji Minfu. In general, however, I prefer local restaurants to the big tourist-facing ones.',
+      'Once you have chosen your restaurant, you only have a couple of decisions left: the whole duck or just half (go for the whole if there are two of you sharing), and if the restaurant offers different grades, go for the better one. You are not in Beijing every day.',
+      'At some restaurants the chef will carve the duck at your table. Dip the meat with a piece of crispy skin into the sweet bean sauce, add a few slices of cucumber and spring onion — or wrap it all together in a small steamed pancake for the perfect bite. That is a small but genuine piece of Chinese culture and history right there.',
+    ]
+  },
+  {
+    title: '8,000 Reasons to Visit Xi\'an — The Terracotta Army',
+    date: '2015-06-14', destination: 'China', region: 'Asia',
+    hero: B+'2015/06/IMG_0788.jpg',
+    gallery: [B+'2015/06/IMG_0794.jpg',B+'2015/06/IMG_0805.jpg',B+'2015/06/IMG_0867.jpg',B+'2015/06/IMG_0891.jpg'],
+    excerpt: 'Xi\'an served as China\'s capital for a thousand years across eleven dynasties. But it was three peasants digging a well in 1974 who gave the world its greatest reason to visit.',
+    content: [
+      'Even though Xi\'an served as the capital of China for roughly 1,000 years across eleven dynasties, it might not be on most itineraries — were it not for three peasants who accidentally discovered pottery figurines while digging a water well in 1974.',
+      'Those figurines turned out to be the Great Terracotta Army: the most significant historical discovery in modern China and one of the most important archaeological finds of the twentieth century.',
+      'Around 8,000 life-sized soldiers made of terracotta — armed, and some accompanied by their warhorses — are arranged in pits according to rank (generals standing taller), each with unique facial features. Alongside them stand acrobats, musicians, court officials and strongmen. In other words, everything required to serve, entertain and defend the Emperor in the afterlife.',
+      '<strong>A remarkable detail:</strong> the actual tomb of the Emperor himself has not yet been unsealed. The Chinese government prefers to wait until excavation technology has advanced sufficiently. Recent analysis has revealed high levels of mercury in the soil above the mausoleum, lending credibility to ancient accounts of mercury rivers flowing through the tomb to represent China\'s great waterways.',
+      'All heads were made using one of eight moulds, with individual features — mouth, nose, hairstyle — added by hand once the fully assembled warrior was placed in the pit.',
+      '<strong>Three days in Xi\'an:</strong> Day 1 — the City Wall and the Muslim Quarter (best at night). Day 2 — the Terracotta Army (half day) and the Big Wild Goose Pagoda. Day 3 — a day trip to Mount Hua.',
+    ]
+  },
+  {
+    title: 'Pandas in Chengdu — The Cutest Attraction in China',
+    date: '2015-06-16', destination: 'China', region: 'Asia',
+    hero: B+'2015/06/IMG_1383.jpg',
+    gallery: [B+'2015/06/IMG_1326.jpg',B+'2015/06/IMG_1475.jpg',B+'2015/06/IMG_1193.jpg',B+'2015/06/IMG_1696.jpg'],
+    excerpt: 'Every great Chinese city has its signature attraction. In Chengdu, it is the pandas — and they are every bit as wonderful as you imagine.',
+    content: [
+      'Every great Chinese city has a defining attraction: the modern skyline in Shanghai, the Great Wall in Beijing, the Terracotta Army in Xi\'an. In Chengdu, there are the pandas.',
+      'The Chengdu Panda Breeding and Research Center is dedicated to the preservation of the endangered Giant Panda and is home to around 50 breeding individuals. When we visited, there were also six or seven baby pandas about three months old — and they were genuinely, indescribably adorable.',
+      'The best time to visit is early in the morning, ideally before 10am, when the pandas are fed and most active. Otherwise, they spend much of the day sleeping, particularly in the hot summer months.',
+      'What makes this place special is that the pandas are not behind glass, giving you a far more personal and immediate experience. We could have spent the entire day there. The park is tranquil and carefully landscaped with bamboo groves, lakes and streams. It is emphatically not a zoo.',
+      'For $150 you can hold a baby panda for around five minutes, with the proceeds going towards research. Be prepared to queue.',
+      'The Centre also breeds red pandas — a peculiar and endearing creature that looks like a cross between a raccoon, a bear and a cat.',
+      '<strong>Other things to do:</strong> Chunxi Street for shopping; Jinli Street for local snacks and atmosphere; the Tibetan Quarter; Renmin Park; and Wuhou Temple. Day trips: Emeishan (by high-speed train) and the Leshan Giant Buddha.',
+    ]
+  },
+  {
+    title: 'Top Things to Do in Yangshuo — Guilin Area',
+    date: '2015-06-16', destination: 'China', region: 'Asia',
+    hero: B+'2015/06/P1000405.jpg',
+    gallery: [B+'2015/06/IMG_3181.jpg',B+'2015/06/IMG_3278.jpg',B+'2015/06/IMG_3333.jpg',B+'2015/06/IMG_3462.jpg'],
+    excerpt: 'If the north of China is about history and culture, the south is about natural beauty. The landscape around Yangshuo and Guilin is simply breathtaking.',
+    content: [
+      'If the north is for history, culture and economic might, the south is all about natural beauty. The area around Kunming, Yangshuo and Guilin is simply stunning.',
+      'Yangshuo is a small town encircled by karst peaks, the Yulong and Li rivers, and extraordinary scenery. It makes an excellent base for exploring the surroundings and has a good range of boutique accommodation.',
+      '<strong>Top things to do:</strong>',
+      'Cycling through the countryside — rent a bike and head out of town. For a glimpse of real local life, ride towards Jiuxian Village or Putao, around 25 km along the Guilin road. A full day out here takes you well away from the tourist crowds.',
+      'Bamboo rafting on the Yulong River — we cycled upstream for about five hours admiring the karst formations, then drifted back on a bamboo raft. The operators will keep your bike safe.',
+      '"The Impressions of Sanjie Liu" — an extraordinary outdoor performance involving around 600 locals, staged on the Li River itself with the karst peaks as a natural backdrop. The highlight is when they illuminate the surrounding mountains: only then do you grasp the true scale of the stage.',
+      'Cormorant fishing on the Li River — about an hour and well worth the experience.',
+      'Moon Hill — a limestone pinnacle pierced by a perfect moon-shaped hole, easily reached by bicycle through smaller villages.',
+    ]
+  },
+  {
+    title: 'Exploring Hong Kong — How to Enjoy the City in Four Days',
+    date: '2015-07-01', destination: 'China', region: 'Asia',
+    hero: B+'2015/06/IMG_2531.jpg',
+    gallery: [B+'2015/06/IMG_1834.jpg',B+'2015/06/IMG_2313.jpg',B+'2015/06/IMG_1921.jpg',B+'2015/06/IMG_2734.jpg'],
+    excerpt: 'A city built vertically, offering the full range of emotions. It is very hard to find anyone with a negative opinion of Hong Kong — it simply gets to everyone.',
+    content: [
+      'A bustling city, built vertically, offering the full range of human emotions. What a fascinating place. It is very difficult to find anyone with a poor opinion of Hong Kong — it simply gets to everyone.',
+      '<strong>Getting around:</strong> Hong Kong is divided into two main areas: Hong Kong Island and the Kowloon side. It has a diverse and reliable transport network: metro, buses, trams and ferries. From the airport, the Airport Express runs every ten minutes and takes under half an hour. The Octopus Card works on most public transport. MTR rides are inexpensive — typically HKD $5 to $15 depending on distance. Taxis are reasonably priced; do not hesitate to use them for short trips.',
+      '<strong>Where to stay:</strong> Accommodation is genuinely expensive. Hotel rooms are generally small and at a premium due to the city\'s density. On a budget, the guest houses in Mirador Mansions or Chungking Mansions in Tsim Sha Tsui offer good value. Aim for somewhere close to an MTR station.',
+      '<strong>What to see:</strong> The Avenue of Stars — a tribute to Hong Kong\'s cinema legends, set along the waterfront with a spectacular view of the skyline. The Peak — a vintage cable tram in service since 1888 carries you to an observation deck 554 metres above sea level, offering what is arguably the most spectacular cityscape in the world. The Lantau Island Buddha. Horse racing at Happy Valley or Sha Tin — a genuinely exciting evening out.',
+    ]
+  },
+  {
+    title: '12 Hours in Macau — Asia\'s Gambling Capital',
+    date: '2015-06-29', destination: 'China', region: 'Asia',
+    hero: B+'2015/06/IMG_2068.jpg',
+    gallery: [B+'2015/06/IMG_2060.jpg',B+'2015/06/IMG_2149.jpg',B+'2015/06/P1000052.jpg',B+'2015/06/IMG_2136.jpg'],
+    excerpt: 'Just an hour from Hong Kong by ferry, Macau blends Portuguese colonial grandeur with the extravagance of the world\'s most profitable gambling industry.',
+    content: [
+      'A trip to Macau — the Las Vegas of Asia — is highly recommended: it is only about an hour away from Hong Kong by ferry. As a former Portuguese colony, it has a completely different atmosphere from the rest of the region. The Lisbon-style Old Centre is beautiful, colonial influence permeates every corner, and what truly makes it unique is the legalisation of gambling, which has turned the territory into the Mecca of Asian high-rollers.',
+      'The man who shaped the Macau we see today was Sir Stanley Ho — "The King of Gambling" — who maintained a monopoly on the casino industry for four decades. That ended in 1999 when Macau was returned to China, and Las Vegas operators quickly followed.',
+      '<strong>Sites to visit:</strong> Fisherman\'s Wharf. Senado Square — the beautifully preserved heart of the old Portuguese colony, a UNESCO World Heritage Site. St. Dominic\'s Church — one of the oldest Catholic churches in Asia. The Ruins of St. Paul — once the largest Catholic church in Asia, now an iconic façade. Mount Fortress. The Venetian — the largest casino in the world, complete with indoor canals and gondoliers.',
+      'You can comfortably do this as a day trip, since the ferries run 24 hours. But if you can stay overnight, do — Macau truly comes alive after dark.',
+    ]
+  },
+  {
+    title: 'How to Spend Your Time in Nairobi Before the Safari',
+    date: '2015-06-28', destination: 'Kenya', region: 'Africa',
+    hero: B+'2015/06/IMG_3695.jpg',
+    gallery: [B+'2015/06/IMG_3527.jpg',B+'2015/06/IMG_3594.jpg',B+'2015/06/IMG_3707.jpg',B+'2015/06/IMG_3719.jpg'],
+    excerpt: 'Most travellers pass through Nairobi on their way to the savannah. We gave it one day — and were rewarded with baby elephants and a giraffe kiss.',
+    content: [
+      'What is the first thing that comes to mind when you think of Africa? For me, it was the savannah: lions, cheetahs, leopards, and the vast herds of wildebeest that sustain them.',
+      'We tried to limit our time in cities for a couple of reasons. First, there is not always a great deal to see. Second, when you notice that even respectable residential neighbourhoods are enclosed in compounds surrounded by electrified fences, you feel a certain pull towards the national parks.',
+      'That said, we allowed ourselves one day to recover from the flight and see something of Nairobi. We visited three places outside the city centre:',
+      '<strong>The David Sheldrick Wildlife Trust</strong> — a remarkable organisation dedicated to the care of orphaned elephants and endangered species such as the Black Rhino. You see the animals at different stages of their rehabilitation, from tiny babies right through to those nearly ready for release. At the end of the visit, you can adopt an elephant for $50 and receive monthly updates. The sanctuary is open to the public only in the morning (11am–12pm), so arrive a little early.',
+      '<strong>The Giraffe Centre</strong> — you can spend a relaxed couple of hours admiring, touching and feeding these gentle giants. The highlight is stepping onto the feeding platform and offering pellets from your hand — or, if you are feeling adventurous, from your lips. A rare chance to be kissed by a giraffe, with a photograph to prove it.',
+      '<strong>The Carnivore restaurant</strong> — not strictly a tourist attraction, but a must for meat lovers. More on that in a separate article.',
+    ]
+  },
+  {
+    title: 'How to Choose a Safari Company in Kenya',
+    date: '2015-06-28', destination: 'Kenya', region: 'Africa',
+    hero: B+'2015/06/P11102591.jpg',
+    gallery: [B+'2015/06/IMG_3957.jpg',B+'2015/06/P1110139.jpg'],
+    excerpt: 'We always organise trips independently. But Kenya taught us that sometimes, letting someone else handle the logistics means you can actually enjoy the adventure.',
+    content: [
+      'In our travels we try to organise trips independently wherever possible — the freedom it gives us genuinely enhances the experience. However, there are certain places where letting someone else handle the logistics means you can focus entirely on enjoying the adventure.',
+      'On a safari — "journey" in Swahili — your one concern should be watching and photographing the wildlife, not navigating or managing complex arrangements. Beyond that, local agencies can tailor the experience precisely to your tastes and budget.',
+      '<strong>Before you start:</strong> Set your priorities in terms of national parks. Kenya has around 50 game reserves and the choice is not straightforward. Certain species are found only in certain parks: if elephants are your priority, head to Amboseli; for big cats, Masai Mara is your destination; for birds, Lake Nakuru.',
+      'Next, decide on accommodation. The choice is between comfortable lodges — some within the parks themselves — and tented camps. There is a significant price difference between the two.',
+      'From there, it becomes simpler. Research on TripAdvisor, Lonely Planet and travel blogs should give you around ten companies with consistently good reviews, ideally members of the Kenya Association of Travel Agents (KATA). Email them your chosen parks and ask for a detailed itinerary and quote.',
+      'After many emails back and forth, we chose Kairi Tours, who offered us a six-day safari across three game parks with tented accommodation for $900 per person — including a private safari for Lake Nakuru and Amboseli, with only Masai Mara as a shared group experience.',
+    ]
+  },
+  {
+    title: '6-Day Safari in Kenya — An Adventure into the Wilderness',
+    date: '2015-07-01', destination: 'Kenya', region: 'Africa',
+    hero: B+'2015/06/IMG_4752.jpg',
+    gallery: [B+'2015/06/IMG_4261.jpg',B+'2015/06/IMG_4658.jpg',B+'2015/06/IMG_5038.jpg',B+'2015/06/IMG_5797.jpg'],
+    excerpt: 'Three parks, six days, all of the Big Five. The Masai Mara delivered everything we had hoped for — and then considerably more.',
+    content: [
+      'Masai Mara is one of Africa\'s most celebrated game reserves, best known for the massive annual migration of millions of wildebeest, zebra and gazelle. Every year around July, they begin their crossing from Tanzania\'s Serengeti to the greener pastures of the Masai Mara.',
+      'We chose a six-day safari covering three major reserves: Masai Mara, Lake Nakuru and Amboseli.',
+      '<strong>Day 1 — Nairobi to Masai Mara:</strong> The reserve lies around 300 km west of Nairobi — a six-hour drive in a 4×4, itself quite an adventure. The last two hours are on a barely drivable road. We arrived at Rhino Tourist Tented Camp, just ten minutes from the park entrance, dropped our bags, grabbed our cameras and headed straight out. Within minutes: wildebeest, antelopes and zebras.',
+      '<strong>Day 2 — Masai Mara:</strong> We spent the entire day in the park. We saw four of the Big Five — lion, rhino, buffalo and elephant. The most exhilarating moment was watching a cheetah and her cub stalk a group of antelopes, with more than ten safari vehicles lined up on the track between them.',
+      '<strong>Days 3–4 — Lake Nakuru:</strong> Famous for its vast flocks of flamingos turning the shoreline pink, and one of the best places in Africa to spot both white and black rhino.',
+      '<strong>Days 5–6 — Amboseli:</strong> With Mount Kilimanjaro as a backdrop across the Tanzanian border, Amboseli is elephant country at its finest. Here, at last, we found the leopard — completing our Big Five.',
+    ]
+  },
+  {
+    title: 'Carnivore Restaurant — A Meat Lover\'s Paradise in Nairobi',
+    date: '2015-07-02', destination: 'Kenya', region: 'Africa',
+    hero: B+'2015/07/P1110110.jpg',
+    gallery: [B+'2015/07/P1110121.jpg',B+'2015/07/P1110124.jpg',B+'2015/07/P1110133.jpg'],
+    excerpt: 'The self-proclaimed "Africa\'s Greatest Eating Experience" has appeared on several lists of the world\'s 50 best restaurants. We went to find out.',
+    content: [
+      'We visited the famous Carnivore on our first day in Nairobi. The restaurant bills itself as "Africa\'s Greatest Eating Experience" and has been nominated several times among the world\'s 50 best. Whether it truly belongs there is debatable — but it is undeniably an experience.',
+      'Game meat has since been declared illegal in Kenya, which is a meaningful step towards reducing poaching. The most exotic options now available are crocodile, ostrich and camel (the last of which was off the menu when we visited).',
+      'What you do get is unlimited quantities of grilled beef, chicken, turkey, pork, sausages and lamb, alongside those exotic options. Every meat is roasted on giant skewers over a massive central charcoal grill. Waiters bring the skewers to your table and carve chunks of meat to your liking. Being all-you-can-eat, you can call for second rounds of whatever you enjoyed most.',
+      'The meal includes salad, soup, a variety of sauces, potatoes, desserts and coffee. Make sure you order a dawa — especially if you enjoy vodka.',
+      'Honestly, we were not blown away. The meats were fine, nothing extraordinary. The ostrich meatballs, however, were genuinely good. The place has an undeniable "tourist trap" feel and is a touch overpriced. We had a good time all the same.',
+    ]
+  }
+];
+
+const layouts = ['large','small','small','medium','medium','small','small','large','medium','medium','small','small'];
+
+function formatDate(d) {
+  return new Date(d).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+}
+
+function placeholderSVG() {
+  return `<div class="card-img-placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg></div>`;
+}
+
+function renderGrid(filter) {
+  const posts = (!filter || filter==='all') ? POSTS : POSTS.filter(p=>p.region===filter||p.destination===filter);
+  document.getElementById('post-count').textContent = posts.length + ' article' + (posts.length!==1?'s':'');
+  document.getElementById('posts-grid').innerHTML = posts.map((p,i)=>{
+    const l = layouts[i % layouts.length];
+    const idx = POSTS.indexOf(p);
+    return `<article class="post-card ${l}" onclick="openPost(${idx})">
+      <div class="card-img"><img src="${p.hero}" alt="${p.title}" loading="lazy" onerror="this.parentElement.innerHTML='${placeholderSVG().replace(/'/g,"\\'")}'"></div>
+      <div class="card-body">
+        <div class="card-meta"><span class="card-region">${p.region}</span><div class="meta-dot"></div><span class="card-destination">${p.destination}</span></div>
+        <h2 class="card-title">${p.title}</h2>
+        <p class="card-excerpt">${p.excerpt}</p>
+        <div class="card-footer"><span class="card-date">${formatDate(p.date)}</span><span class="card-arrow">&#x2197;</span></div>
+      </div>
+    </article>`;
+  }).join('');
+}
+
+function renderDestinations() {
+  const counts = {};
+  POSTS.forEach(p=>{ counts[p.destination]=(counts[p.destination]||0)+1; });
+  document.getElementById('dest-grid').innerHTML = Object.entries(counts).map(([d,c])=>`
+    <div class="dest-item" onclick="filterPosts('${d}',null)">
+      <span class="dest-name">${d}</span>
+      <span class="dest-count">${c} stor${c===1?'y':'ies'}</span>
+    </div>`).join('');
+}
+
+function filterPosts(f, btn) {
+  if (btn) { document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); }
+  renderGrid(f);
+  document.getElementById('stories').scrollIntoView({behavior:'smooth'});
+}
+
+function openPost(idx) {
+  const p = POSTS[idx];
+  const heroEl = document.getElementById('modal-hero-img');
+  heroEl.src = p.hero; heroEl.alt = p.title; heroEl.style.display = 'block';
+  document.getElementById('modal-region').textContent = p.region + ' \u00b7 ' + p.destination;
+  document.getElementById('modal-title').textContent  = p.title;
+  document.getElementById('modal-date').textContent   = formatDate(p.date);
+  const gallery = p.gallery && p.gallery.length
+    ? `<div class="modal-gallery">${p.gallery.map(u=>`<img src="${u}" alt="" loading="lazy" onerror="this.style.display='none'">`).join('')}</div>`
+    : '';
+  document.getElementById('modal-body').innerHTML = p.content.map(t=>`<p>${t}</p>`).join('') + gallery;
+  document.getElementById('modal-overlay').classList.add('open');
+  document.getElementById('modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  document.getElementById('modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function showHome() { window.scrollTo({top:0,behavior:'smooth'}); }
+
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModal(); });
+window.addEventListener('scroll', ()=>{ document.getElementById('navbar').classList.toggle('scrolled', window.scrollY>50); });
+
+renderGrid('all');
+renderDestinations();
+</script>
+</body>
+</html>
