@@ -3,451 +3,298 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Itinerantum — Cloudinary Image Matcher</title>
+<title>Itinerantum — Image Picker</title>
+<script src="https://media-library.cloudinary.com/global/all.js"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: system-ui, sans-serif; background: #f5f0e8; color: #1a1410; padding: 2rem; }
-  h1 { font-size: 1.4rem; margin-bottom: 0.4rem; }
-  .subtitle { font-size: 0.85rem; color: #7a6f62; margin-bottom: 2rem; }
-  .card { background: white; border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
-  .card h2 { font-size: 1rem; margin-bottom: 1rem; color: #1a1410; }
-  label { display: block; font-size: 0.8rem; font-weight: 500; margin-bottom: 0.3rem; color: #7a6f62; letter-spacing: 0.05em; text-transform: uppercase; }
-  input { width: 100%; padding: 0.6rem 0.8rem; border: 1px solid #e8ddc8; border-radius: 4px; font-size: 0.9rem; margin-bottom: 1rem; font-family: monospace; }
+  body { font-family: system-ui, sans-serif; background: #f5f0e8; color: #1a1410; padding: 1.5rem; }
+  h1 { font-size: 1.3rem; margin-bottom: 0.3rem; }
+  .subtitle { font-size: 0.82rem; color: #7a6f62; margin-bottom: 1.5rem; line-height: 1.6; }
+  .card { background: white; border-radius: 8px; padding: 1.2rem 1.5rem; margin-bottom: 1.2rem; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+  .card h2 { font-size: 0.95rem; margin-bottom: 0.8rem; }
+  label { display: block; font-size: 0.75rem; font-weight: 600; margin-bottom: 0.25rem; color: #7a6f62; letter-spacing: 0.05em; text-transform: uppercase; }
+  input { width: 100%; padding: 0.55rem 0.75rem; border: 1px solid #e8ddc8; border-radius: 4px; font-size: 0.88rem; margin-bottom: 0.9rem; }
   input:focus { outline: none; border-color: #b85c2a; }
-  button { background: #1a1410; color: #f5f0e8; border: none; padding: 0.7rem 1.5rem; border-radius: 4px; font-size: 0.85rem; cursor: pointer; font-weight: 500; letter-spacing: 0.05em; transition: background 0.2s; }
-  button:hover { background: #b85c2a; }
-  button:disabled { background: #b0a898; cursor: not-allowed; }
-  .status { font-size: 0.85rem; margin-top: 1rem; padding: 0.7rem 1rem; border-radius: 4px; display: none; }
+  .btn { display: inline-block; padding: 0.65rem 1.4rem; border: none; border-radius: 4px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+  .btn-primary   { background: #1a1410; color: #f5f0e8; }
+  .btn-primary:hover  { background: #b85c2a; }
+  .btn-secondary { background: #b85c2a; color: white; }
+  .btn-secondary:hover { background: #9a4d24; }
+  .status { font-size: 0.82rem; padding: 0.6rem 0.9rem; border-radius: 4px; margin-top: 0.7rem; display: none; }
   .status.info  { background: #e8f4fd; color: #1a5276; display: block; }
   .status.error { background: #fdecea; color: #922b21; display: block; }
   .status.ok    { background: #eafaf1; color: #1e8449; display: block; }
-
-  .image-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
-  .image-table th { text-align: left; padding: 0.5rem 0.6rem; background: #f5f0e8; font-weight: 600; font-size: 0.75rem; letter-spacing: 0.06em; text-transform: uppercase; color: #7a6f62; }
-  .image-table td { padding: 0.45rem 0.6rem; border-bottom: 1px solid #f0ebe0; vertical-align: middle; }
-  .image-table tr:hover td { background: #faf7f2; }
-  .match-ok   { color: #1e8449; font-weight: 600; }
-  .match-none { color: #922b21; }
-  .match-pick { color: #b85c2a; }
-
-  select { width: 100%; padding: 0.4rem 0.5rem; border: 1px solid #e8ddc8; border-radius: 3px; font-size: 0.8rem; background: white; }
-  .preview-thumb { width: 48px; height: 32px; object-fit: cover; border-radius: 2px; display: block; }
-
-  .dl-btn { background: #b85c2a; margin-top: 0; }
-  .progress { height: 4px; background: #e8ddc8; border-radius: 2px; margin-top: 0.8rem; overflow: hidden; }
-  .progress-bar { height: 100%; background: #b85c2a; width: 0%; transition: width 0.3s; border-radius: 2px; }
-
-  .note { font-size: 0.78rem; color: #7a6f62; margin-top: 0.5rem; line-height: 1.6; }
+  .summary { display: flex; gap: 1.5rem; font-size: 0.82rem; color: #7a6f62; margin-bottom: 0.8rem; }
+  .summary strong { color: #1a1410; }
+  .section-label { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #b85c2a; padding: 0.5rem 0.7rem 0.3rem; background: #fff8f5; border-bottom: 1px solid #f0ebe0; }
+  .img-row { display: flex; align-items: center; gap: 0.8rem; padding: 0.6rem 0.7rem; border-bottom: 1px solid #f5f0e8; transition: background 0.15s; }
+  .img-row:hover { background: #faf7f2; }
+  .img-row.assigned { background: #f0faf4; }
+  .img-thumb { width: 64px; height: 42px; object-fit: cover; border-radius: 3px; flex-shrink: 0; background: #e8ddc8; }
+  .img-info { flex: 1; min-width: 0; }
+  .img-role { font-size: 0.75rem; font-weight: 600; }
+  .img-orig { font-size: 0.68rem; color: #b0a898; font-family: monospace; }
+  .img-assigned { font-size: 0.7rem; color: #1e8449; }
+  .img-none { font-size: 0.7rem; color: #b0a898; }
+  .pick-btn { font-size: 0.72rem; padding: 0.3rem 0.75rem; border: 1px solid #e8ddc8; background: #f5f0e8; border-radius: 3px; cursor: pointer; white-space: nowrap; flex-shrink: 0; transition: all 0.15s; }
+  .pick-btn:hover { background: #b85c2a; color: white; border-color: #b85c2a; }
+  .assigned .pick-btn { background: #d5f5e3; border-color: #a9dfbf; color: #1e8449; }
   code { background: #f0ebe0; padding: 0.1rem 0.3rem; border-radius: 2px; font-size: 0.78rem; }
+  #step2, #step3 { display: none; }
 </style>
 </head>
 <body>
 
-<h1>🧭 Itinerantum — Cloudinary Image Matcher</h1>
-<p class="subtitle">This tool runs entirely in your browser. Your credentials are never sent anywhere except directly to Cloudinary.</p>
+<h1>🧭 Itinerantum — Image Picker</h1>
+<p class="subtitle">This tool uses Cloudinary's own media browser — no API secret needed, no CORS issues. Click <strong>Pick</strong> next to each image slot, choose your photo from the popup, and the tool builds your finished website automatically.</p>
 
 <!-- STEP 1 -->
-<div class="card">
-  <h2>Step 1 — Enter your Cloudinary credentials</h2>
+<div class="card" id="step1card">
+  <h2>Step 1 — Connect to Cloudinary</h2>
   <label>Cloud Name</label>
-  <input type="text" id="cloudName" placeholder="e.g. dslghhoOn" value="dslghhoOn">
-  <label>API Key</label>
+  <input type="text" id="cloudName" value="dslghhoOn">
+  <label>API Key <span style="font-weight:400;text-transform:none;font-size:0.75rem">(not the secret — just the key)</span></label>
   <input type="text" id="apiKey" placeholder="Your API Key">
-  <label>API Secret</label>
-  <input type="password" id="apiSecret" placeholder="Your API Secret">
-  <button onclick="fetchAssets()">Fetch my photos from Cloudinary</button>
-  <div class="progress"><div class="progress-bar" id="progress-bar"></div></div>
+  <button class="btn btn-primary" onclick="initTool()">Connect</button>
   <div class="status" id="status1"></div>
-  <p class="note">This will fetch the names of all your uploaded photos. It may take a moment if you have over 1,000 assets.</p>
+  <p style="font-size:0.75rem;color:#b0a898;margin-top:0.8rem">Your API key is safe here — it only opens the media browser popup. No secret required.</p>
 </div>
 
 <!-- STEP 2 -->
-<div class="card" id="step2" style="display:none">
-  <h2>Step 2 — Match photos to posts</h2>
-  <p class="note" style="margin-bottom:1rem">The tool has tried to automatically match your Cloudinary photo names to the original WordPress filenames. Green = matched automatically. Orange = best guess, please verify. Red = no match found, please select manually using the dropdown.</p>
-  <table class="image-table">
-    <thead>
-      <tr>
-        <th>Post / Role</th>
-        <th>Original filename</th>
-        <th>Cloudinary match</th>
-        <th>Preview</th>
-      </tr>
-    </thead>
-    <tbody id="match-table"></tbody>
-  </table>
-  <br>
-  <button onclick="generateHTML()">Generate updated index.html</button>
-  <div class="status" id="status2"></div>
+<div id="step2">
+  <div class="card">
+    <h2>Step 2 — Pick a photo for each image slot</h2>
+    <div class="summary">
+      <div>Total: <strong>54</strong></div>
+      <div>Done: <strong id="done-count">0</strong></div>
+      <div>Remaining: <strong id="left-count">54</strong></div>
+    </div>
+    <div id="image-list"></div>
+  </div>
+  <div class="card">
+    <button class="btn btn-secondary" onclick="generateHTML()">Generate updated index.html</button>
+    <div class="status" id="status2"></div>
+  </div>
 </div>
 
 <!-- STEP 3 -->
-<div class="card" id="step3" style="display:none">
-  <h2>Step 3 — Download your updated website</h2>
-  <p class="note" style="margin-bottom:1rem">All image paths have been updated to your Cloudinary URLs. Download the file below and upload it to GitHub as <code>index.html</code>.</p>
-  <button class="dl-btn" onclick="downloadHTML()">⬇ Download index.html</button>
+<div class="card" id="step3">
+  <h2>Step 3 — Download your website</h2>
+  <p style="font-size:0.85rem;color:#7a6f62;margin-bottom:1rem">All image paths have been updated. Download below and upload to GitHub as <code>index.html</code>.</p>
+  <button class="btn btn-secondary" onclick="downloadHTML()">⬇ Download index.html</button>
   <div class="status ok" id="status3"></div>
 </div>
 
 <script>
-const CLOUD_NAME_DEFAULT = 'dslghhoOn';
-const CLD_BASE = () => `https://res.cloudinary.com/${document.getElementById('cloudName').value.trim()}/image/upload/`;
-
-// All original image references from itinerantum.html
 const IMAGE_REFS = [
-  // [postIndex, role, originalFilename]
-  [0,  'hero',    'beijing_web-1'],
-  [0,  'gal0',   'beijing_web-65'],
-  [0,  'gal1',   'beijing_web-37'],
-  [0,  'gal2',   'beijing_web-42'],
-  [0,  'gal3',   'beijing_web-22'],
-  [1,  'hero',   'Shanghai_cityscape_lights_bund-6'],
-  [1,  'gal0',   'Shanghai_cityscape_lights_bund-9'],
-  [1,  'gal1',   'Shanghai_cityscape_lights_bund-14'],
-  [1,  'gal2',   'shanghai_chinese_street-6'],
-  [1,  'gal3',   'china_Zujiajiao-3'],
-  [2,  'hero',   'beijing_web-68'],
-  [2,  'gal0',   'beijing_web-29'],
-  [2,  'gal1',   'beijing_web-70'],
-  [3,  'hero',   'IMG_0788'],
-  [3,  'gal0',   'IMG_0794'],
-  [3,  'gal1',   'IMG_0805'],
-  [3,  'gal2',   'IMG_0867'],
-  [3,  'gal3',   'IMG_0891'],
-  [4,  'hero',   'IMG_1383'],
-  [4,  'gal0',   'IMG_1326'],
-  [4,  'gal1',   'IMG_1475'],
-  [4,  'gal2',   'IMG_1193'],
-  [4,  'gal3',   'IMG_1696'],
-  [5,  'hero',   'P1000405'],
-  [5,  'gal0',   'IMG_3181'],
-  [5,  'gal1',   'IMG_3278'],
-  [5,  'gal2',   'IMG_3333'],
-  [5,  'gal3',   'IMG_3462'],
-  [6,  'hero',   'IMG_2531'],
-  [6,  'gal0',   'IMG_1834'],
-  [6,  'gal1',   'IMG_2313'],
-  [6,  'gal2',   'IMG_1921'],
-  [6,  'gal3',   'IMG_2734'],
-  [7,  'hero',   'IMG_2068'],
-  [7,  'gal0',   'IMG_2060'],
-  [7,  'gal1',   'IMG_2149'],
-  [7,  'gal2',   'P1000052'],
-  [7,  'gal3',   'IMG_2136'],
-  [8,  'hero',   'IMG_3695'],
-  [8,  'gal0',   'IMG_3527'],
-  [8,  'gal1',   'IMG_3594'],
-  [8,  'gal2',   'IMG_3707'],
-  [8,  'gal3',   'IMG_3719'],
-  [9,  'hero',   'P11102591'],
-  [9,  'gal0',   'IMG_3957'],
-  [9,  'gal1',   'P1110139'],
-  [10, 'hero',   'IMG_4752'],
-  [10, 'gal0',   'IMG_4261'],
-  [10, 'gal1',   'IMG_4658'],
-  [10, 'gal2',   'IMG_5038'],
-  [10, 'gal3',   'IMG_5797'],
-  [11, 'hero',   'P1110110'],
-  [11, 'gal0',   'P1110121'],
-  [11, 'gal1',   'P1110124'],
-  [11, 'gal2',   'P1110133'],
+  [0,'Hero',       'beijing_web-1'],
+  [0,'Gallery 1',  'beijing_web-65'],
+  [0,'Gallery 2',  'beijing_web-37'],
+  [0,'Gallery 3',  'beijing_web-42'],
+  [0,'Gallery 4',  'beijing_web-22'],
+  [1,'Hero',       'Shanghai_cityscape_lights_bund-6'],
+  [1,'Gallery 1',  'Shanghai_cityscape_lights_bund-9'],
+  [1,'Gallery 2',  'Shanghai_cityscape_lights_bund-14'],
+  [1,'Gallery 3',  'shanghai_chinese_street-6'],
+  [1,'Gallery 4',  'china_Zujiajiao-3'],
+  [2,'Hero',       'beijing_web-68'],
+  [2,'Gallery 1',  'beijing_web-29'],
+  [2,'Gallery 2',  'beijing_web-70'],
+  [3,'Hero',       'IMG_0788'],
+  [3,'Gallery 1',  'IMG_0794'],
+  [3,'Gallery 2',  'IMG_0805'],
+  [3,'Gallery 3',  'IMG_0867'],
+  [3,'Gallery 4',  'IMG_0891'],
+  [4,'Hero',       'IMG_1383'],
+  [4,'Gallery 1',  'IMG_1326'],
+  [4,'Gallery 2',  'IMG_1475'],
+  [4,'Gallery 3',  'IMG_1193'],
+  [4,'Gallery 4',  'IMG_1696'],
+  [5,'Hero',       'P1000405'],
+  [5,'Gallery 1',  'IMG_3181'],
+  [5,'Gallery 2',  'IMG_3278'],
+  [5,'Gallery 3',  'IMG_3333'],
+  [5,'Gallery 4',  'IMG_3462'],
+  [6,'Hero',       'IMG_2531'],
+  [6,'Gallery 1',  'IMG_1834'],
+  [6,'Gallery 2',  'IMG_2313'],
+  [6,'Gallery 3',  'IMG_1921'],
+  [6,'Gallery 4',  'IMG_2734'],
+  [7,'Hero',       'IMG_2068'],
+  [7,'Gallery 1',  'IMG_2060'],
+  [7,'Gallery 2',  'IMG_2149'],
+  [7,'Gallery 3',  'P1000052'],
+  [7,'Gallery 4',  'IMG_2136'],
+  [8,'Hero',       'IMG_3695'],
+  [8,'Gallery 1',  'IMG_3527'],
+  [8,'Gallery 2',  'IMG_3594'],
+  [8,'Gallery 3',  'IMG_3707'],
+  [8,'Gallery 4',  'IMG_3719'],
+  [9,'Hero',       'P11102591'],
+  [9,'Gallery 1',  'IMG_3957'],
+  [9,'Gallery 2',  'P1110139'],
+  [10,'Hero',      'IMG_4752'],
+  [10,'Gallery 1', 'IMG_4261'],
+  [10,'Gallery 2', 'IMG_4658'],
+  [10,'Gallery 3', 'IMG_5038'],
+  [10,'Gallery 4', 'IMG_5797'],
+  [11,'Hero',      'P1110110'],
+  [11,'Gallery 1', 'P1110121'],
+  [11,'Gallery 2', 'P1110124'],
+  [11,'Gallery 3', 'P1110133'],
 ];
 
-const POST_TITLES = [
-  'Beijing','Shanghai','Peking Duck','Xi\'an','Chengdu',
-  'Yangshuo','Hong Kong','Macau','Nairobi','Safari Company','6-Day Safari','Carnivore'
-];
+const POST_TITLES = ['Beijing','Shanghai','Peking Duck','Xi\'an','Chengdu','Yangshuo','Hong Kong','Macau','Nairobi','Safari Company','6-Day Safari','Carnivore'];
 
-let allAssets = []; // {public_id, filename_lower}
-let matchedMap = {}; // IMAGE_REFS index -> public_id
+const assignments = {};
+let widget = null;
+let currentIdx = null;
 
-async function fetchAssets() {
+function initTool() {
   const cloud  = document.getElementById('cloudName').value.trim();
-  const key    = document.getElementById('apiKey').value.trim();
-  const secret = document.getElementById('apiSecret').value.trim();
-  if (!cloud || !key || !secret) { showStatus('status1','error','Please fill in all three fields.'); return; }
-
-  document.querySelector('button').disabled = true;
-  showStatus('status1','info','Connecting to Cloudinary and fetching asset list...');
-
-  allAssets = [];
-  let nextCursor = null;
-  let page = 0;
+  const apiKey = document.getElementById('apiKey').value.trim();
+  if (!cloud || !apiKey) { showStatus('status1','error','Please fill in both fields.'); return; }
 
   try {
-    do {
-      page++;
-      const params = new URLSearchParams({ max_results: 500 });
-      if (nextCursor) params.set('next_cursor', nextCursor);
-
-      const credentials = btoa(`${key}:${secret}`);
-      const url = `https://api.cloudinary.com/v1_1/${cloud}/resources/image?${params}`;
-      const res = await fetch(url, { headers: { Authorization: `Basic ${credentials}` } });
-
-      if (!res.ok) {
-        const err = await res.json();
-        showStatus('status1','error', `Cloudinary error: ${err.error?.message || res.statusText}. Check your credentials.`);
-        document.querySelector('button').disabled = false;
-        return;
-      }
-
-      const data = await res.json();
-      allAssets.push(...data.resources.map(r => ({
-        public_id: r.public_id,
-        filename_lower: r.public_id.toLowerCase().replace(/[^a-z0-9]/g,'')
-      })));
-      nextCursor = data.next_cursor;
-
-      const pct = Math.min(95, page * 40);
-      document.getElementById('progress-bar').style.width = pct + '%';
-      showStatus('status1','info', `Fetched ${allAssets.length} assets so far...`);
-
-    } while (nextCursor);
-
-    document.getElementById('progress-bar').style.width = '100%';
-    showStatus('status1','ok', `✓ Found ${allAssets.length} assets in your Cloudinary account.`);
-    buildMatchTable();
+    widget = cloudinary.createMediaLibrary(
+      { cloud_name: cloud, api_key: apiKey, multiple: false },
+      { insertHandler: onInsert }
+    );
+    document.getElementById('step1card').style.display = 'none';
     document.getElementById('step2').style.display = 'block';
-    document.getElementById('step2').scrollIntoView({behavior:'smooth'});
-
+    buildList();
   } catch(e) {
-    showStatus('status1','error', `Network error: ${e.message}. Make sure you are connected to the internet.`);
+    showStatus('status1','error','Could not connect. Check your cloud name and API key and try again.');
+    console.error(e);
   }
-  document.querySelector('button').disabled = false;
 }
 
-function normalize(name) {
-  // Strip extension, lowercase, remove non-alphanumeric
-  return name.replace(/\.[^.]+$/,'').toLowerCase().replace(/[^a-z0-9]/g,'');
-}
-
-function findMatch(originalName) {
-  const norm = normalize(originalName);
-  // Exact match
-  let match = allAssets.find(a => a.filename_lower === norm);
-  if (match) return { asset: match, confidence: 'exact' };
-  // Starts with
-  match = allAssets.find(a => a.filename_lower.startsWith(norm));
-  if (match) return { asset: match, confidence: 'starts' };
-  // Original starts with asset name (asset name is prefix of original)
-  match = allAssets.find(a => norm.startsWith(a.filename_lower) && a.filename_lower.length > 4);
-  if (match) return { asset: match, confidence: 'starts' };
-  return null;
-}
-
-function buildMatchTable() {
-  const tbody = document.getElementById('match-table');
-  tbody.innerHTML = '';
-  matchedMap = {};
+function buildList() {
+  const list = document.getElementById('image-list');
+  list.innerHTML = '';
+  let lastPost = -1;
 
   IMAGE_REFS.forEach((ref, i) => {
     const [postIdx, role, origName] = ref;
-    const result = findMatch(origName);
-    const roleLabel = role === 'hero' ? '🖼 Hero' : `📷 Gallery ${parseInt(role.replace('gal',''))+1}`;
-    const postLabel = POST_TITLES[postIdx];
+    const cloud = document.getElementById('cloudName').value.trim();
 
-    const tr = document.createElement('tr');
-
-    // Post + role
-    const td1 = document.createElement('td');
-    td1.innerHTML = `<strong>${postLabel}</strong><br><span style="color:#b0a898;font-size:0.75rem">${roleLabel}</span>`;
-    tr.appendChild(td1);
-
-    // Original filename
-    const td2 = document.createElement('td');
-    td2.innerHTML = `<code>${origName}</code>`;
-    tr.appendChild(td2);
-
-    // Match
-    const td3 = document.createElement('td');
-    if (result && result.confidence === 'exact') {
-      matchedMap[i] = result.asset.public_id;
-      td3.innerHTML = `<span class="match-ok">✓ ${result.asset.public_id}</span>`;
-    } else {
-      // Build a select with best guess + all options
-      const sel = document.createElement('select');
-      sel.id = `sel_${i}`;
-      sel.onchange = () => { matchedMap[i] = sel.value; updatePreview(i); };
-
-      // Empty option
-      const emptyOpt = document.createElement('option');
-      emptyOpt.value = '';
-      emptyOpt.textContent = result ? `✓ Best guess: ${result.asset.public_id}` : '— select manually —';
-      sel.appendChild(emptyOpt);
-
-      // Add all assets as options
-      allAssets.forEach(a => {
-        const opt = document.createElement('option');
-        opt.value = a.public_id;
-        opt.textContent = a.public_id;
-        sel.appendChild(opt);
-      });
-
-      if (result) {
-        matchedMap[i] = result.asset.public_id;
-        sel.value = result.asset.public_id;
-        td3.classList.add('match-pick');
-      } else {
-        td3.classList.add('match-none');
-      }
-      td3.appendChild(sel);
+    if (postIdx !== lastPost) {
+      const sec = document.createElement('div');
+      sec.className = 'section-label';
+      sec.textContent = POST_TITLES[postIdx];
+      list.appendChild(sec);
+      lastPost = postIdx;
     }
-    tr.appendChild(td3);
 
-    // Preview
-    const td4 = document.createElement('td');
-    const pid = matchedMap[i];
-    if (pid) {
-      const cloud = document.getElementById('cloudName').value.trim();
-      td4.innerHTML = `<img id="prev_${i}" class="preview-thumb" src="https://res.cloudinary.com/${cloud}/image/upload/w_80,h_54,c_fill/${pid}" alt="">`;
+    const row = document.createElement('div');
+    row.className = 'img-row' + (assignments[i] ? ' assigned' : '');
+    row.id = `row_${i}`;
+
+    const thumb = document.createElement('img');
+    thumb.className = 'img-thumb';
+    thumb.id = `thumb_${i}`;
+    thumb.alt = '';
+    if (assignments[i]) {
+      thumb.src = `https://res.cloudinary.com/${cloud}/image/upload/w_128,h_85,c_fill/${assignments[i]}`;
     } else {
-      td4.innerHTML = `<span id="prev_${i}" style="color:#b0a898;font-size:0.75rem">—</span>`;
+      thumb.style.opacity = '0.15';
     }
-    tr.appendChild(td4);
 
-    tbody.appendChild(tr);
+    const info = document.createElement('div');
+    info.className = 'img-info';
+    info.innerHTML = `
+      <div class="img-role">${role === 'Hero' ? '🖼 Hero' : '📷 ' + role}</div>
+      <div class="img-orig">${origName}</div>
+      <div id="lbl_${i}" class="${assignments[i] ? 'img-assigned' : 'img-none'}">${assignments[i] ? '✓ ' + assignments[i] : 'not picked yet'}</div>
+    `;
+
+    const btn = document.createElement('button');
+    btn.className = 'pick-btn';
+    btn.id = `btn_${i}`;
+    btn.textContent = assignments[i] ? '✓ Change' : 'Pick';
+    btn.onclick = () => { currentIdx = i; widget.show(); };
+
+    row.appendChild(thumb);
+    row.appendChild(info);
+    row.appendChild(btn);
+    list.appendChild(row);
   });
 }
 
-function updatePreview(i) {
+function onInsert(data) {
+  if (!data.assets || !data.assets.length) return;
+  const pid   = data.assets[0].public_id;
   const cloud = document.getElementById('cloudName').value.trim();
-  const pid = matchedMap[i];
-  const el = document.getElementById(`prev_${i}`);
-  if (!el) return;
-  if (pid) {
-    el.outerHTML = `<img id="prev_${i}" class="preview-thumb" src="https://res.cloudinary.com/${cloud}/image/upload/w_80,h_54,c_fill/${pid}" alt="">`;
-  }
+  const i     = currentIdx;
+
+  assignments[i] = pid;
+
+  const row   = document.getElementById(`row_${i}`);
+  const thumb = document.getElementById(`thumb_${i}`);
+  const lbl   = document.getElementById(`lbl_${i}`);
+  const btn   = document.getElementById(`btn_${i}`);
+
+  if (row)   { row.className = 'img-row assigned'; }
+  if (thumb) { thumb.src = `https://res.cloudinary.com/${cloud}/image/upload/w_128,h_85,c_fill/${pid}`; thumb.style.opacity = '1'; }
+  if (lbl)   { lbl.className = 'img-assigned'; lbl.textContent = '✓ ' + pid; }
+  if (btn)   { btn.textContent = '✓ Change'; }
+
+  const done = Object.keys(assignments).length;
+  document.getElementById('done-count').textContent = done;
+  document.getElementById('left-count').textContent = IMAGE_REFS.length - done;
 }
 
-function generateHTML() {
+async function generateHTML() {
   const cloud = document.getElementById('cloudName').value.trim();
   const base  = `https://res.cloudinary.com/${cloud}/image/upload/`;
+  const done  = Object.keys(assignments).length;
 
-  // Check for unmatched
-  const unmatched = IMAGE_REFS.filter((_,i) => !matchedMap[i]);
-  if (unmatched.length > 0) {
-    showStatus('status2','error', `${unmatched.length} image(s) still unmatched. Please select them from the dropdowns above.`);
+  if (done === 0) { showStatus('status2','error','Please pick at least one image first.'); return; }
+
+  showStatus('status2','info','Loading your site file...');
+
+  let html;
+  try {
+    const res = await fetch('index.html');
+    if (!res.ok) throw new Error();
+    html = await res.text();
+  } catch(e) {
+    showStatus('status2','error','Could not load index.html — make sure both files are in the same GitHub repository.');
     return;
   }
 
-  // Build replacement maps: original path -> cloudinary URL
-  const replacements = {};
   IMAGE_REFS.forEach((ref, i) => {
-    const [,, origName] = ref;
-    // Find the original full path patterns used in the HTML
-    const pid = matchedMap[i];
-    replacements[origName] = base + pid;
+    if (!assignments[i]) return;
+    const origName = ref[2];
+    const newUrl   = base + assignments[i];
+    const re = new RegExp(`B\\+'[^']*${escRe(origName)}[^']*'`, 'g');
+    html = html.replace(re, `'${newUrl}'`);
   });
 
-  // Fetch the itinerantum HTML template and patch it
-  // We embed the template as a JS string and do replacements
-  let html = ITINERANTUM_HTML;
-
-  // Replace the B constant - no longer needed, we'll replace each reference
-  // Replace each occurrence of B+'path/filename.ext' or B+"path/filename.ext"
-  IMAGE_REFS.forEach((ref, i) => {
-    const [,, origName] = ref;
-    const pid = matchedMap[i];
-    const newUrl = base + pid;
-
-    // Match patterns like B+'2014/07/beijing_web-1.jpg' or B+'beijing_web-1.jpg'
-    // The original HTML uses B+' ... origName.jpg'
-    const patterns = [
-      new RegExp(`B\\+'[^']*${escapeRegex(origName)}[^']*\\.jpg'`, 'g'),
-      new RegExp(`B\\+"[^"]*${escapeRegex(origName)}[^"]*\\.jpg"`, 'g'),
-    ];
-    patterns.forEach(p => {
-      html = html.replace(p, `'${newUrl}'`);
-    });
-  });
-
-  // Clean up the B constant line since we've replaced all references
   html = html.replace(/const B = '[^']+';/, `const B = '${base}'; // Cloudinary`);
+  window._html = html;
 
-  window._generatedHTML = html;
-  showStatus('status2','ok','✓ All paths updated successfully!');
-  document.getElementById('status3').textContent = `✓ ${IMAGE_REFS.length} image paths updated to your Cloudinary account (${cloud}).`;
+  showStatus('status2','ok', `✓ ${done} of ${IMAGE_REFS.length} images assigned and patched.`);
+  document.getElementById('status3').textContent = `✓ ${done} image paths updated to Cloudinary (${cloud}).`;
   document.getElementById('step3').style.display = 'block';
-  document.getElementById('step3').scrollIntoView({behavior:'smooth'});
+  document.getElementById('step3').scrollIntoView({ behavior: 'smooth' });
 }
 
 function downloadHTML() {
-  const blob = new Blob([window._generatedHTML], {type:'text/html'});
   const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
+  a.href = URL.createObjectURL(new Blob([window._html], {type:'text/html'}));
   a.download = 'index.html';
   a.click();
 }
 
-function escapeRegex(s) { return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'); }
+function escRe(s) { return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'); }
 
 function showStatus(id, type, msg) {
   const el = document.getElementById(id);
   el.className = 'status ' + type;
   el.textContent = msg;
-}
-
-// ── EMBEDDED ITINERANTUM HTML TEMPLATE ──────────────────────────────────────
-// This is the full itinerantum.html content, embedded here so the tool is self-contained.
-// The generateHTML() function patches the image paths in this string.
-const ITINERANTUM_HTML = `TEMPLATE_PLACEHOLDER`;
-</script>
-
-<script>
-// Patch the template placeholder with the actual site HTML at runtime
-// Since we can't embed 60KB of HTML in a JS string safely here,
-// we instead fetch it from the same directory if hosted together,
-// OR the user can paste it. We provide both options.
-
-// Override generateHTML to handle the template
-const _originalGenerate = generateHTML;
-
-// Check if template was embedded
-if (typeof ITINERANTUM_HTML !== 'undefined' && ITINERANTUM_HTML === 'TEMPLATE_PLACEHOLDER') {
-  // Template not embedded - use fetch approach or paste approach
-  window.generateHTML = async function() {
-    const cloud = document.getElementById('cloudName').value.trim();
-    const base  = `https://res.cloudinary.com/${cloud}/image/upload/`;
-
-    const unmatched = IMAGE_REFS.filter((_,i) => !matchedMap[i]);
-    if (unmatched.length > 0) {
-      showStatus('status2','error', `${unmatched.length} image(s) still unmatched.`);
-      return;
-    }
-
-    showStatus('status2','info','Fetching your site template...');
-
-    let html;
-    try {
-      const res = await fetch('index.html');
-      if (!res.ok) throw new Error('not found');
-      html = await res.text();
-    } catch(e) {
-      showStatus('status2','error','Could not load index.html automatically. Make sure both files are in the same folder, then try again.');
-      return;
-    }
-
-    // Apply replacements
-    IMAGE_REFS.forEach((ref, i) => {
-      const [,, origName] = ref;
-      const pid = matchedMap[i];
-      const newUrl = base + pid;
-      const patterns = [
-        new RegExp(`B\\+'[^']*${escapeRegex(origName)}(?:\\.[a-z]+)?'`, 'g'),
-        new RegExp(`B\\+"[^"]*${escapeRegex(origName)}(?:\\.[a-z]+)?"`, 'g'),
-      ];
-      patterns.forEach(p => { html = html.replace(p, `'${newUrl}'`); });
-    });
-
-    html = html.replace(/const B = '[^']+';/, `const B = '${base}'; // Cloudinary`);
-    window._generatedHTML = html;
-    showStatus('status2','ok','✓ All paths updated successfully!');
-    document.getElementById('status3').textContent = `✓ ${IMAGE_REFS.length} image paths updated to Cloudinary (${cloud}).`;
-    document.getElementById('step3').style.display = 'block';
-    document.getElementById('step3').scrollIntoView({behavior:'smooth'});
-  };
+  el.style.display = 'block';
 }
 </script>
-
 </body>
 </html>
